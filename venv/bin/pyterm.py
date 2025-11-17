@@ -1,4 +1,4 @@
-#!/home/flaresome/cursorProjects/newProject/app/venv/bin/python3
+#!/home/flaresome/git/app/venv/bin/python3
 
 """Simple Python serial terminal
 """

@@ -1,4 +1,4 @@
-#!/home/flaresome/cursorProjects/newProject/app/venv/bin/python3
+#!/home/flaresome/git/app/venv/bin/python3
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2018-2024, Emmanuel Blot <emmanuel.blot@free.fr>

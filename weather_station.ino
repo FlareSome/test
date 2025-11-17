@@ -87,48 +87,74 @@ void readSensors() {
 // --------------- OLED DISPLAY -------------
 void updateDisplay() {
   display.clearDisplay();
-  display.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SSD1306_BLACK);
 
-  // ---- Title ----
+  // ----- TITLE -----
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
+  display.setCursor(20, 0);
   display.println("Weather Station");
 
-  // ---- Big Temperature ----
+  // ----- BIG TEMPERATURE -----
   display.setTextSize(2);
-  display.setCursor(0, 12);
-  if (temperature != -999) {
-    display.print(temperature, 1);
-    display.println(" C");
-  } else {
-    display.println("ERR");
-  }
 
-  // ---- Row 1: Humidity + Pressure ----
+  // Make temperature text
+  char tempBuff[10];
+  dtostrf(temperature, 4, 1, tempBuff);  // Safe for AVR
+
+  // Measure text BEFORE drawing
+  int16_t x1, y1;
+  uint16_t w, h;
+  display.getTextBounds(tempBuff, 0, 0, &x1, &y1, &w, &h);
+
+  // Leave space for degree symbol + C
+  int tempX = (SCREEN_WIDTH - (w + 14)) / 2;  // +14px = bitmap (6px) + spacing + C
+
+  // Draw temperature text
+  display.setCursor(tempX, 14);
+  display.print(tempBuff);
+
+  // Draw degree bitmap
+  drawDegreeSymbol(tempX + w + 2, 16);  // align vertically nicely
+
+  // Draw 'C'
+  display.setCursor(tempX + w + 10, 14);
+  display.print("C");
+
+  // ----- ROW 1 -----
   display.setTextSize(1);
-  display.setCursor(0, 34);
-  display.print("H: ");
-  display.print(humidity, 1);
+
+  display.setCursor(0, 42);
+  display.print("H:");
+  display.print(humidity, 0);
   display.print("%");
 
-  display.setCursor(70, 34);   // ← aligned right side
+  display.setCursor(70, 42);
   display.print("P:");
   display.print(pressure, 0);
-  display.print("hPa");
 
-  // ---- Row 2: Rain + Analog ----
-  display.setCursor(0, 48);
-  display.print("Rain: ");
+  // ----- ROW 2 -----
+  display.setCursor(0, 54);
+  display.print("Rain:");
   display.print(rainDigital ? "Dry" : "Wet");
 
-  display.setCursor(70, 48);
+  display.setCursor(70, 54);
   display.print("A:");
   display.print(rainValue);
-  
-  display.fillRect(124, 0, 4, SCREEN_HEIGHT, SSD1306_BLACK);
 
   display.display();
+}
+
+// Draw custom degree symbol (6x6)
+void drawDegreeSymbol(int x, int y) {
+  static const unsigned char degreeBitmap[] PROGMEM = {
+    0b00111000,
+    0b01101100,
+    0b01000100,
+    0b01000100,
+    0b01101100,
+    0b00111000
+  };
+  display.drawBitmap(x, y, degreeBitmap, 6, 6, SSD1306_WHITE);
 }
 
 // --------------- JSON OUTPUT --------------
