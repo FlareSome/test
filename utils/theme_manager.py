@@ -1,47 +1,73 @@
-import streamlit as st
-from pathlib import Path
+# utils/theme_manager.py
+# NiceGUI-compatible Theme Manager
 
-def load_css(theme="light"):
-    """Load the correct theme file based on state."""
-    css_path = Path(__file__).parent.parent / "assets" / f"{theme}_theme.css"
-    if css_path.exists():
-        with css_path.open() as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    else:
-        st.error(f"Theme file not found: {css_path}")
-
-
-def inject_theme_toggle():
-    """Floating light/dark toggle — NO RELOAD required."""
-    toggle_script = """
-    <script>
-    const btn = document.createElement("div");
-    btn.id = "theme-toggle-btn";
-    btn.innerHTML = "🌙";
-    btn.style.position = "fixed";
-    btn.style.top = "20px";
-    btn.style.right = "25px";
-    btn.style.padding = "8px";
-    btn.style.fontSize = "22px";
-    btn.style.cursor = "pointer";
-    btn.style.zIndex = "99999";
-    btn.style.background = "rgba(0,0,0,0.2)";
-    btn.style.borderRadius = "8px";
-    btn.style.backdropFilter = "blur(6px)";
-    btn.style.transition = "0.3s";
-    document.body.appendChild(btn);
-
-    // Load theme
-    let theme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-theme", theme);
-    btn.innerHTML = theme === "light" ? "🌙" : "☀️";
-
-    btn.onclick = () => {
-        theme = (theme === "light") ? "dark" : "light";
-        localStorage.setItem("theme", theme);
-        document.documentElement.setAttribute("data-theme", theme);
-        btn.innerHTML = theme === "light" ? "🌙" : "☀️";
-    };
-    </script>
-    """
-    st.markdown(toggle_script, unsafe_allow_html=True)
+class ThemeManager:
+    """Provides CSS for Light/Dark theme support in NiceGUI."""
+    
+    @staticmethod
+    def get_css():
+        """Returns CSS string with theme variables."""
+        return """
+        /* Light Theme (Default) */
+        :root {
+            --bg-gradient-start: #e0f2fe;
+            --bg-gradient-end: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --glass-shadow: rgba(0, 0, 0, 0.05);
+            --header-bg: rgba(255, 255, 255, 0.8);
+            --header-border: rgba(0, 0, 0, 0.05);
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --scrollbar-track: rgba(0, 0, 0, 0.02);
+            --scrollbar-thumb: rgba(0, 0, 0, 0.1);
+            --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Dark Theme */
+        body.body--dark {
+            --bg-gradient-start: #1e293b;
+            --bg-gradient-end: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --header-bg: rgba(15, 23, 42, 0.7);
+            --header-border: rgba(255, 255, 255, 0.05);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --scrollbar-track: rgba(255, 255, 255, 0.02);
+            --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+            --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Apply theme variables */
+        body {
+            background: radial-gradient(circle at top left, var(--bg-gradient-start), var(--bg-gradient-end)) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        .glass-panel {
+            background: var(--glass-bg) !important;
+            border: 1px solid var(--glass-border) !important;
+            box-shadow: 0 4px 30px var(--glass-shadow) !important;
+        }
+        
+        .glass-header {
+            background: var(--header-bg) !important;
+            border-bottom: 1px solid var(--header-border) !important;
+        }
+        
+        .hide-scroll::-webkit-scrollbar-track {
+            background: var(--scrollbar-track) !important;
+        }
+        
+        .hide-scroll::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb) !important;
+        }
+        
+        .hide-scroll::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-thumb-hover) !important;
+        }
+        """

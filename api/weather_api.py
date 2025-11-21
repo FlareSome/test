@@ -1,0 +1,94 @@
+import os
+import requests
+from fastapi import APIRouter
+from dotenv import load_dotenv
+
+load_dotenv()
+
+router = APIRouter()
+API_KEY = os.getenv("WEATHER_API_KEY")
+
+def get_weatherapi_now(city="Kolkata"):
+    """Fetch current weather from WeatherAPI."""
+    if not API_KEY:
+        return None
+
+    try:
+        url = f"http://api.weatherapi.com/v1/current.json?key={API_KEY}&q={city}&aqi=no"
+        r = requests.get(url, timeout=10).json()
+        c = r["current"]
+
+        return {
+            "current": {
+                "temperature_c": c["temp_c"],
+                "humidity": c["humidity"],
+                "pressure_hpa": c["pressure_mb"],
+                "wind_kph": c.get("wind_kph"),
+                "feelslike_c": c.get("feelslike_c"),
+                "condition": c["condition"]["text"],
+                "rainfall_mm": c.get("precip_mm", 0)
+            }
+        }
+    except Exception as e:
+        print("WeatherAPI current error:", e)
+        return None
+
+def get_weatherapi_7day(city="Kolkata"):
+    """7-day forecast."""
+    if not API_KEY:
+        return None
+
+    try:
+        url = f"http://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=7&aqi=no"
+        r = requests.get(url, timeout=10).json()
+
+        return [
+            {
+                "day": d["date"],
+                "temp_high_c": d["day"]["maxtemp_c"],
+                "temp_low_c": d["day"]["mintemp_c"],
+                "rain_prob_perc": d["day"].get("daily_chance_of_rain", 0),
+                "condition": d["day"]["condition"]["text"],
+                "sunrise": d["astro"]["sunrise"],
+                "sunset": d["astro"]["sunset"],
+            }
+            for d in r["forecast"]["forecastday"]
+        ]
+    except Exception as e:
+        print("WeatherAPI 7day error:", e)
+        return None
+
+
+@router.get("/weatherapi")
+def api_weather_now():
+    return get_weatherapi_now() or {"error": "WeatherAPI current unavailable"}
+
+
+@router.get("/weatherapi_7day")
+def api_weather_7day():
+    return get_weatherapi_7day() or {"error": "WeatherAPI 7day unavailable"}
+
+
+# New Sync Endpoint
+from datetime import datetime
+from db.db import insert_forecast_batch
+
+@router.get("/weatherapi/sync")
+def sync_weatherapi():
+    """Fetch 7-day forecast and save to DB."""
+    data = get_weatherapi_7day()
+    if not data:
+        return {"status": "error", "message": "Could not fetch data from WeatherAPI"}
+    
+    try:
+        # Insert into DB
+        insert_forecast_batch(
+            source="WeatherAPI",
+            created_at=datetime.now().isoformat(),
+            forecast_list=data,
+            summary="Manual Sync"
+        )
+        return {"status": "success", "message": f"Synced {len(data)} days to DB"}
+    except Exception as e:
+        print("Sync error:", e)
+        return {"status": "error", "message": str(e)}
