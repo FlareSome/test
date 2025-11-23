@@ -1,6 +1,6 @@
 # Weather Prediction System 🌤️
 
-A comprehensive IoT-based weather prediction system that collects real-time sensor data, integrates with WeatherAPI, trains machine learning models, and provides forecasts through an interactive NiceGUI dashboard with beautiful visualizations.
+A comprehensive IoT-based weather prediction system that collects real-time sensor data, integrates with WeatherAPI, trains machine learning models, and provides forecasts through a modern web interface powered by FastAPI backend and NiceGUI dashboard with beautiful visualizations.
 
 ## 🌟 Features
 
@@ -16,7 +16,8 @@ A comprehensive IoT-based weather prediction system that collects real-time sens
 - **Automated Training**: Train models on collected sensor data
 
 ### Interactive Dashboard
-- **NiceGUI Interface**: Modern, responsive web UI with glassmorphism design
+- **NiceGUI Interface**: Modern, responsive web UI with glassmorphism design (runs on port 8080)
+- **FastAPI Backend**: RESTful API server (runs on port 8000)
 - **Dark/Light Theme**: Toggle between themes with persistent preferences
 - **Real-time Updates**: Live sensor status indicator (Connected/Disconnected)
 - **Beautiful Charts**: Interactive Plotly visualizations for trends
@@ -140,7 +141,13 @@ The script will:
 
 ### Option 2: Manual Setup
 
-1. **Create and activate virtual environment:**
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd app2
+   ```
+
+2. **Create and activate virtual environment:**
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # Linux/Mac
@@ -148,30 +155,38 @@ The script will:
    venv\Scripts\activate  # Windows
    ```
 
-2. **Install dependencies:**
+3. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Set up environment variables:**
-   Create a `.env` file:
+4. **Set up environment variables:**
+   Copy the example file and edit with your values:
+   ```bash
+   cp .env.example .env
+   # Then edit .env with your actual API keys and configuration
    ```
-   WEATHERAPI_KEY=your_api_key_here
-   CITY_NAME=New Town, West Bengal
-   API_BASE=http://localhost:8000
-   ```
+   
+   Required variables:
+   - `WEATHERAPI_KEY` - Get from https://www.weatherapi.com/
+   - `CITY_NAME` - Your location (e.g., "New Town, West Bengal")
+   - `API_BASE` - Backend URL (default: http://localhost:8000)
 
-4. **Run components:**
+5. **Run components:**
    ```bash
    # Start serial reader (optional, for IoT sensor)
    python serial/serial_reader.py &
    
-   # Start main application
-   python main.py
+   # Start FastAPI backend
+   uvicorn main:app --host 0.0.0.0 --port 8000 &
+   
+   # Start NiceGUI dashboard
+   python ui/ui.py
    ```
 
-5. **Access dashboard:**
-   Open browser to `http://localhost:8000`
+6. **Access the application:**
+   - FastAPI Backend: `http://localhost:8000`
+   - NiceGUI Dashboard: `http://localhost:8080`
 
 ## 📡 Hardware Setup
 
@@ -274,10 +289,16 @@ Model is saved to `ml_weather_model.pkl` for predictions.
 
 ## 🌐 Environment Variables
 
-Create a `.env` file in the project root:
+**For new users:** Copy `.env.example` to `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your actual configuration:
 
 ```env
-# WeatherAPI Configuration
+# WeatherAPI Configuration (REQUIRED)
 WEATHERAPI_KEY=your_weatherapi_key_here
 CITY_NAME=New Town, West Bengal
 
@@ -290,8 +311,10 @@ SERIAL_PORT=/dev/ttyUSB0  # Linux/Mac
 SERIAL_BAUD=9600
 
 # Gemini API (optional, for AI forecasting)
-GEMINI_API_KEY=your_gemini_key_here
+# GEMINI_API_KEY=your_gemini_key_here
 ```
+
+See `.env.example` for detailed documentation of all available variables.
 
 ## 🐛 Troubleshooting
 
@@ -343,9 +366,10 @@ uvicorn main:app --port 8001
 ## 🔄 Continuous Operation
 
 The system is designed to run 24/7:
-- **Serial reader**: Collects sensor data continuously
+- **Serial reader**: Collects sensor data continuously (background process)
+- **FastAPI Backend**: RESTful API server at `http://localhost:8000`
+- **NiceGUI Dashboard**: Web interface at `http://localhost:8080`
 - **Database**: Stores all readings with timestamps
-- **Dashboard**: Always available at `http://localhost:8000`
 - **Auto-refresh**: Dashboard updates every 30 seconds
 - **Fallback**: Automatic switch to WeatherAPI if sensor fails
 
@@ -360,10 +384,6 @@ The system is designed to run 24/7:
 - [ ] User authentication
 - [ ] Cloud deployment (Docker, Kubernetes)
 
-## 📄 License
-
-MIT License - See LICENSE file for details
-
 ## 👤 Author
 
 **FlareSome**
@@ -374,6 +394,15 @@ For issues or questions:
 - Open an issue on GitHub
 - Check troubleshooting section above
 - Review logs in `logs/` directory
+
+### Connect with FlareSome
+
+[![GitHub](https://img.shields.io/badge/GitHub-FlareSome-181717?style=for-the-badge&logo=github)](https://github.com/FlareSome)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/flaresome)
+[![Twitter](https://img.shields.io/badge/Twitter-Follow-1DA1F2?style=for-the-badge&logo=twitter)](https://twitter.com/flaresome)
+[![Email](https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail)](mailto:contact@flaresome.dev)
+
+> **Note**: Replace the URLs above with your actual social media profiles
 
 ---
 

@@ -150,6 +150,10 @@ logs/*.txt
 data/*.csv
 data/*.json
 
+# Project specific - Presentations and Documents
+*.pptx
+*.ppt
+
 # OS files
 .DS_Store
 .DS_Store?

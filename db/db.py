@@ -111,6 +111,29 @@ def get_daily_trends(days=7):
         print(f"Error getting daily trends: {e}")
         return pd.DataFrame()
 
+def get_hourly_trends(hours=24):
+    """Get hourly data for sparkline charts."""
+    try:
+        con = sqlite3.connect(DB_PATH)
+        query = f"""
+        SELECT 
+            strftime('%Y-%m-%d %H:00:00', timestamp) as hour,
+            AVG(temperature_c) as avg_temp,
+            AVG(humidity_perc) as avg_humidity,
+            AVG(pressure_hpa) as avg_pressure,
+            SUM(rainfall_mm) as total_rainfall
+        FROM readings
+        WHERE timestamp >= datetime('now', '-{hours} hours')
+        GROUP BY strftime('%Y-%m-%d %H:00:00', timestamp)
+        ORDER BY hour ASC
+        """
+        df = pd.read_sql_query(query, con)
+        con.close()
+        return df
+    except Exception as e:
+        print(f"Error getting hourly trends: {e}")
+        return pd.DataFrame()
+
 def query_readings():
     con = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT * FROM readings ORDER BY timestamp ASC", con, parse_dates=["timestamp"])

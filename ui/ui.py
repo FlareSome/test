@@ -57,18 +57,54 @@ def _format_time(t):
         return "—"
 
 def _get_weather_icon(cond):
-    """Returns a tuple (Emoji, CSS Class for animation/color)"""
+    """Returns a tuple (Emoji, CSS Class for color, Animation Class)"""
     cond = (cond or "").lower()
-    if "storm" in cond or "thunder" in cond: return "⛈️", "text-yellow-300"
-    if "rain" in cond or "drizzle" in cond: return "🌧️", "text-blue-300"
-    if "snow" in cond or "sleet" in cond: return "❄️", "text-white"
-    if "clear" in cond or "sun" in cond: return "☀️", "text-orange-300"
-    if "partly" in cond: return "🌤️", "text-yellow-100"
-    if "cloud" in cond or "overcast" in cond: return "☁️", "text-gray-300"
-    if "fog" in cond or "mist" in cond: return "🌫️", "text-gray-400"
-    if "wet" in cond: return "🌧️", "text-blue-400"
-    if "dry" in cond: return "☁️", "text-gray-200"
-    return "🌡️", "text-blue-200"
+    if "storm" in cond or "thunder" in cond: 
+        return "⛈️", "text-yellow-300", "weather-icon-storm"
+    if "rain" in cond or "drizzle" in cond: 
+        return "🌧️", "text-blue-300", "weather-icon-rain"
+    if "snow" in cond or "sleet" in cond: 
+        return "❄️", "text-white", "weather-icon-snow"
+    if "clear" in cond or "sun" in cond: 
+        return "☀️", "text-orange-300", "weather-icon-sunny"
+    if "partly" in cond: 
+        return "🌤️", "text-yellow-100", "weather-icon-sunny"
+    if "cloud" in cond or "overcast" in cond: 
+        return "☁️", "text-gray-300", "weather-icon-cloud"
+    if "fog" in cond or "mist" in cond: 
+        return "🌫️", "text-gray-400", "weather-icon-cloud"
+    if "wet" in cond: 
+        return "🌧️", "text-blue-400", "weather-icon-rain"
+    if "dry" in cond: 
+        return "☁️", "text-gray-200", "weather-icon-cloud"
+    return "🌡️", "text-blue-200", ""
+
+def create_sparkline(data, color='#3B82F6'):
+    """Create a mini sparkline chart for detail cards."""
+    if not data or len(data) == 0:
+        return go.Figure()
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        y=data,
+        mode='lines',
+        line=dict(color=color, width=2),
+        fill='tozeroy',
+        fillcolor=f'rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.2)',
+        hoverinfo='skip'
+    ))
+    
+    fig.update_layout(
+        showlegend=False,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=0, t=0, b=0),
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False),
+        height=40
+    )
+    
+    return fig
 
 # --- CSS ---
 APP_CSS = """
@@ -174,6 +210,170 @@ body {
     opacity: 0;
     animation: fadeInUp 1s ease-out 0.4s forwards;
 }
+
+/* ========================================
+   Feature #8: Data Refresh Animations
+   ======================================== */
+@keyframes valueUpdate {
+    0% { 
+        transform: scale(1);
+        color: inherit;
+    }
+    50% { 
+        transform: scale(1.08);
+        filter: brightness(1.3);
+    }
+    100% { 
+        transform: scale(1);
+        color: inherit;
+    }
+}
+
+.value-updated {
+    animation: valueUpdate 0.6s ease-out;
+}
+
+/* Glow effect for updated values */
+@keyframes glowPulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    }
+}
+
+.value-glow {
+    animation: glowPulse 1s ease-out;
+}
+
+/* ========================================
+   Feature #3: Animated Weather Icons
+   ======================================== */
+@keyframes sunnyPulse {
+    0%, 100% { 
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+    }
+    50% { 
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.9));
+    }
+}
+
+@keyframes rainFall {
+    0%, 100% { 
+        transform: translateY(0);
+    }
+    50% { 
+        transform: translateY(4px);
+    }
+}
+
+@keyframes cloudFloat {
+    0%, 100% { 
+        transform: translateX(0);
+    }
+    50% { 
+        transform: translateX(3px);
+    }
+}
+
+@keyframes stormShake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-2px) rotate(-2deg); }
+    75% { transform: translateX(2px) rotate(2deg); }
+}
+
+@keyframes snowDrift {
+    0%, 100% { 
+        transform: translateY(0) translateX(0);
+    }
+    33% { 
+        transform: translateY(2px) translateX(-2px);
+    }
+    66% { 
+        transform: translateY(-2px) translateX(2px);
+    }
+}
+
+.weather-icon-sunny {
+    animation: sunnyPulse 3s ease-in-out infinite;
+}
+
+.weather-icon-rain {
+    animation: rainFall 1.5s ease-in-out infinite;
+}
+
+.weather-icon-cloud {
+    animation: cloudFloat 4s ease-in-out infinite;
+}
+
+.weather-icon-storm {
+    animation: stormShake 0.5s ease-in-out infinite;
+}
+
+.weather-icon-snow {
+    animation: snowDrift 3s ease-in-out infinite;
+}
+
+/* ========================================
+   Feature #7: Skeleton Loading States
+   ======================================== */
+@keyframes skeletonLoading {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeletonLoading 1.5s ease-in-out infinite;
+    border-radius: 0.5rem;
+}
+
+.skeleton-text {
+    height: 1.2em;
+    margin: 0.5em 0;
+}
+
+.skeleton-circle {
+    border-radius: 50%;
+}
+
+.skeleton-rect {
+    border-radius: 0.5rem;
+}
+
+/* Dark mode skeleton */
+body.body--dark .skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.03) 75%
+    );
+    background-size: 200% 100%;
+}
+
+/* Fade out skeleton when data loads */
+.skeleton-fade-out {
+    animation: fadeOut 0.4s ease-out forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
 """
 
 @ui.page('/')
@@ -258,6 +458,25 @@ def main_page():
     with ui.element('div').classes('w-full max-w-7xl mx-auto p-4 md:p-6 gap-6 flex flex-col main-content mt-16') as main_content:
         state['main_content'] = main_content
         
+        # Feature #10: AI Weather Summary Card
+        with ui.card().classes('glass-panel w-full px-5 py-4 no-shadow border-none'):
+            with ui.row().classes('w-full items-center gap-4'):
+                # Left: Icon
+                state['summary_icon'] = ui.label('🌤️').classes('text-5xl')
+                
+                # Middle: Summary text
+                with ui.column().classes('flex-1 gap-2'):
+                    with ui.row().classes('items-center gap-2'):
+                        ui.label('Weather Insights').classes('text-xl font-bold text-slate-700 dark:text-slate-200')
+                        state['summary_status'] = ui.label('🟢').classes('text-base')
+                    
+                    state['summary_text'] = ui.label('Loading weather insights...').classes(
+                        'text-lg text-slate-600 dark:text-slate-300 leading-relaxed'
+                    )
+                    
+                    # Recommendations chips
+                    state['recommendations_container'] = ui.row().classes('gap-2 flex-wrap')
+        
         # Top Row: Hero + Details
         with ui.row().classes('w-full gap-6 flex-nowrap flex-col md:flex-row'):
             
@@ -326,18 +545,23 @@ def main_page():
                 # Stats Grid - 2 columns, 2 rows
                 with ui.grid().classes('w-full grid-cols-2 gap-4 h-full'):
                     
-                    def detail_card(title, icon, color):
-                        with ui.column().classes('glass-panel p-5 justify-center h-full'):
+                    def detail_card(title, icon, color, with_sparkline=True):
+                        with ui.column().classes('glass-panel p-5 justify-between h-full'):
                             with ui.row().classes('items-center gap-2 mb-2'):
                                 ui.icon(icon, size='sm', color=color)
                                 ui.label(title).classes('text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-bold')
                             lbl = ui.label('—').classes('text-3xl font-bold text-slate-800 dark:text-slate-100 pl-1')
-                            return lbl
+                            # Add sparkline container only if requested
+                            if with_sparkline:
+                                sparkline = ui.plotly({}).classes('w-full mt-2')
+                                return lbl, sparkline
+                            else:
+                                return lbl, None
 
-                    state['feels'] = detail_card('Feels Like', 'thermostat', 'orange-400')
-                    state['pressure'] = detail_card('Pressure', 'speed', 'purple-400')
-                    state['sunrise'] = detail_card('Sunrise', 'wb_twilight', 'yellow-400')
-                    state['sunset'] = detail_card('Sunset', 'nightlight_round', 'indigo-400')
+                    state['feels'], state['feels_sparkline'] = detail_card('Feels Like', 'thermostat', 'orange-400', with_sparkline=True)
+                    state['pressure'], state['pressure_sparkline'] = detail_card('Pressure', 'speed', 'purple-400', with_sparkline=True)
+                    state['sunrise'], _ = detail_card('Sunrise', 'wb_twilight', 'yellow-400', with_sparkline=False)
+                    state['sunset'], _ = detail_card('Sunset', 'nightlight_round', 'indigo-400', with_sparkline=False)
 
         # 7-Day Forecast Section
         with ui.column().classes('w-full gap-4'):
@@ -437,15 +661,20 @@ def main_page():
         
         # 1. Update Hero - Local Sensor
         if sensor:
-            state['temp'].set_text(_format_temp(sensor.get("temp")))
+            # Animate temperature update
+            new_temp = _format_temp(sensor.get("temp"))
+            if state['temp']._text != new_temp:
+                state['temp'].classes.append('value-updated')
+            state['temp'].set_text(new_temp)
+            
             cond_text = sensor.get("condition") or "—"
             state['cond'].set_text(cond_text)
             
-            emoji, color_cls = _get_weather_icon(cond_text)
+            emoji, color_cls, anim_cls = _get_weather_icon(cond_text)
             state['icon'].set_text(emoji)
             
-            # Update icon classes
-            new_classes = f"text-5xl filter drop-shadow-lg my-2 {color_cls}".split()
+            # Update icon classes with animation
+            new_classes = f"text-5xl filter drop-shadow-lg my-2 {color_cls} {anim_cls}".split()
             try:
                 state['icon'].classes.clear()
                 state['icon'].classes.extend(new_classes)
@@ -454,12 +683,16 @@ def main_page():
             state['icon'].update()
 
             hum = sensor.get("humidity")
-            state['humidity'].set_text(f"{hum}%" if hum is not None else "—%")
+            new_hum = f"{hum}%" if hum is not None else "—%"
+            if state['humidity']._text != new_hum:
+                state['humidity'].classes.append('value-updated')
+            state['humidity'].set_text(new_hum)
             
             pres = sensor.get("pressure")
             pres_text = f"{pres} hPa" if pres is not None else "— hPa"
+            if state['hero_pressure']._text != pres_text:
+                state['hero_pressure'].classes.append('value-updated')
             state['hero_pressure'].set_text(pres_text)
-            state['pressure'].set_text(pres_text) # Update detail card too
             
             rain = sensor.get("rainfall")
             state['rainfall'].set_text(f"{rain:.1f} mm" if rain is not None else "— mm")
@@ -469,19 +702,22 @@ def main_page():
             state['icon'].set_text("📡")
             state['humidity'].set_text("—%")
             state['hero_pressure'].set_text("— hPa")
-            state['pressure'].set_text("— hPa")
             state['rainfall'].set_text("— mm")
 
         # 1b. Update Hero - Weather API
-        state['api_temp'].set_text(_format_temp(api.get("temp")))
+        new_api_temp = _format_temp(api.get("temp"))
+        if state['api_temp']._text != new_api_temp:
+            state['api_temp'].classes.append('value-updated')
+        state['api_temp'].set_text(new_api_temp)
+        
         cond_api_text = api.get("condition") or "—"
         state['api_cond'].set_text(cond_api_text)
         
-        emoji_api, color_cls_api = _get_weather_icon(cond_api_text)
+        emoji_api, color_cls_api, anim_cls_api = _get_weather_icon(cond_api_text)
         state['api_icon'].set_text(emoji_api)
         
-        # Update API icon classes
-        new_classes_api = f"text-5xl filter drop-shadow-lg my-2 {color_cls_api}".split()
+        # Update API icon classes with animation
+        new_classes_api = f"text-5xl filter drop-shadow-lg my-2 {color_cls_api} {anim_cls_api}".split()
         try:
             state['api_icon'].classes.clear()
             state['api_icon'].classes.extend(new_classes_api)
@@ -502,8 +738,34 @@ def main_page():
 
         # 2. Update Details (Use API data for these as sensor might not have them)
         state['feels'].set_text(_format_temp(api.get("feels_like")))
+        
+        # Update pressure detail card (use sensor if available, otherwise API)
+        if sensor and sensor.get("pressure"):
+            pres_detail = sensor.get("pressure")
+        else:
+            pres_detail = api.get("pressure")
+        
+        new_pres_text = f"{pres_detail} hPa" if pres_detail else "— hPa"
+        if state['pressure']._text != new_pres_text:
+            state['pressure'].classes.append('value-updated')
+        state['pressure'].set_text(new_pres_text)
+        
         state['sunrise'].set_text(_format_time(api.get("sunrise")))
         state['sunset'].set_text(_format_time(api.get("sunset")))
+        
+        # 2b. Update Sparklines (Feature #4)
+        from db.db import get_hourly_trends
+        hourly_data = get_hourly_trends(hours=24)
+        if not hourly_data.empty:
+            # Feels Like sparkline (using temp as proxy)
+            temp_data = hourly_data['avg_temp'].fillna(0).tolist()
+            if temp_data:
+                state['feels_sparkline'].update_figure(create_sparkline(temp_data, '#FB923C'))
+            
+            # Pressure sparkline
+            pressure_data = hourly_data['avg_pressure'].fillna(0).tolist()
+            if pressure_data:
+                state['pressure_sparkline'].update_figure(create_sparkline(pressure_data, '#A855F7'))
 
         # 3. Update Charts
         update_chart(data)
@@ -531,6 +793,36 @@ def main_page():
         state['iot_status'].classes.clear()
         state['iot_status'].classes.extend(new_classes)
         state['iot_status'].update()
+        
+        # 6. Update AI Weather Summary (Feature #10)
+        from services.weather_insights import generate_summary
+        summary_data = generate_summary(
+            current=cur,
+            forecast=daily,
+            sensor_status=iot_stat
+        )
+        
+        # Update summary text
+        state['summary_text'].set_text(summary_data['summary'])
+        state['summary_status'].set_text(summary_data['status_emoji'])
+        
+        # Update icon based on condition
+        if cur:
+            cond = cur.get('condition', '')
+            emoji, _, anim_cls = _get_weather_icon(cond)
+            state['summary_icon'].set_text(emoji)
+            if anim_cls:
+                state['summary_icon'].classes.clear()
+                state['summary_icon'].classes.extend(['text-5xl', anim_cls])
+                state['summary_icon'].update()
+        
+        # Update recommendations chips
+        state['recommendations_container'].clear()
+        with state['recommendations_container']:
+            for rec in summary_data['recommendations']:
+                ui.chip(rec, color='blue').props('outline').classes(
+                    'text-sm text-blue-600 dark:text-blue-300'
+                )
 
     def update_chart(data):
         ch = data.get("chart", {}) or {}
@@ -740,18 +1032,20 @@ def main_page():
                     day_name = date_str[:3]
                     date_num = ""
 
+
                 hi = day.get("high") or day.get("temp_high_c")
                 lo = day.get("low") or day.get("temp_low_c")
                 cond = day.get("cond") or day.get("condition")
-                emoji, _ = _get_weather_icon(cond)
+                emoji, _, anim_cls = _get_weather_icon(cond)
 
                 # Render Card
                 with ui.column().classes('glass-panel p-5 items-center min-w-[110px] hover:bg-slate-100/20 dark:hover:bg-white/5 transition-colors cursor-pointer gap-2'):
                     ui.label(day_name).classes('font-bold text-base text-blue-600 dark:text-blue-200')
                     ui.label(date_num).classes('text-xs text-slate-500 mb-1')
-                    ui.label(emoji).classes('text-4xl my-2')
+                    ui.label(emoji).classes(f'text-4xl my-2 {anim_cls}')
                     ui.label(_format_temp(hi)).classes('text-xl font-bold text-slate-900 dark:text-white')
                     ui.label(_format_temp(lo)).classes('text-base text-slate-600 dark:text-slate-400')
+
 
     # (Action buttons moved to forecast section above)
 

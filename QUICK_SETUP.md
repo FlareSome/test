@@ -24,9 +24,9 @@ run.bat
 That's it! The script will:
 1. ✅ Create a virtual environment
 2. ✅ Install all dependencies
-3. ✅ Start the sensor reader
-4. ✅ Train the ML model
-5. ✅ Launch the Streamlit dashboard
+3. ✅ Start the sensor reader (background)
+4. ✅ Start the FastAPI backend (port 8000)
+5. ✅ Launch the NiceGUI dashboard (port 8080)
 
 ---
 
@@ -61,10 +61,17 @@ pip install -r requirements.txt
 
 ### Step 5: Configure Environment Variables
 
-Create a `.env` file in the project root:
+Copy the example file and edit with your values:
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your actual configuration:
 ```bash
 # .env file (do NOT commit this!)
-GEMINI_API_KEY=your_gemini_api_key
+WEATHERAPI_KEY=your_weatherapi_key_here
+CITY_NAME=New Town, West Bengal
+API_BASE=http://localhost:8000
 SERIAL_PORT=/dev/ttyUSB0  # Linux/Mac: check with ls /dev/tty*
 SERIAL_BAUD=9600
 ```
@@ -91,17 +98,17 @@ run.bat   # Windows
 
 Terminal 1 - Sensor Reader:
 ```bash
-python serial_reader.py
+python serial/serial_reader.py
 ```
 
-Terminal 2 - Model Training:
+Terminal 2 - FastAPI Backend:
 ```bash
-python train_ml_model.py
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-Terminal 3 - Dashboard:
+Terminal 3 - NiceGUI Dashboard:
 ```bash
-streamlit run main.py
+python ui/ui.py
 ```
 
 ---
@@ -124,7 +131,17 @@ ls /dev/tty*
 ### Baud Rate
 Default: `9600` - Match this with your Arduino firmware!
 
-### Gemini API Setup
+### WeatherAPI Setup
+
+1. Go to [WeatherAPI](https://www.weatherapi.com/)
+2. Sign up for a free account
+3. Get your API key
+4. Add to `.env` file:
+   ```bash
+   WEATHERAPI_KEY=your_key_here
+   ```
+
+### Gemini API Setup (Optional)
 
 1. Go to [Google AI Studio](https://aistudio.google.com/)
 2. Create an API key
@@ -152,9 +169,9 @@ pip list
 python -c "import pandas; print('✅ Pandas OK')"
 ```
 
-### Test Streamlit
+### Test NiceGUI
 ```bash
-streamlit hello
+python -c "import nicegui; print('✅ NiceGUI OK')"
 ```
 
 ---
@@ -178,7 +195,7 @@ streamlit hello
 ### Issue: "pip: command not found"
 **Solution:** Use `python -m pip install` instead
 
-### Issue: "ModuleNotFoundError: No module named 'streamlit'"
+### Issue: "ModuleNotFoundError: No module named 'nicegui'"
 **Solution:** Ensure venv is activated and run:
 ```bash
 pip install -r requirements.txt
@@ -201,21 +218,26 @@ sudo usermod -a -G dialout $USER
 ### Issue: Model training fails with "CSV not found"
 **Solution:** Ensure `raw_data.csv` exists in the project root with proper data
 
-### Issue: Streamlit port already in use
+### Issue: Port already in use
 **Solution:** Change port:
 ```bash
-streamlit run main.py --server.port 8502
+# For NiceGUI
+python ui/ui.py --port 8081
+
+# For FastAPI
+uvicorn main:app --port 8001
 ```
 
 ---
 
-## 📂 Expected Data Files
+## 📂 Expected Files After Setup
 
-After first run, you should see:
-- ✅ `raw_data.csv` - Sensor data
-- ✅ `ml_weather_model.pkl` - Trained model
-- ✅ `forecast_log.csv` - Predictions history
+After cloning and first run, you should have:
+- ✅ `.env` - Your configuration (copied from `.env.example`)
 - ✅ `venv/` - Virtual environment
+- ✅ `weather_data.db` - SQLite database (auto-created)
+- ✅ `logs/` - Log files directory
+- ✅ `data/` - Data files (CSV, JSON)
 
 ---
 
@@ -233,10 +255,11 @@ After first run, you should see:
 ## ✅ You're Ready!
 
 Once everything is running:
-1. 🌐 Open **Streamlit Dashboard**: http://localhost:8501
-2. 📡 **Sensor Reader** collecting data in background
-3. 🤖 **ML Model** continuously training
-4. 📊 **Predictions** updating in real-time
+1. 🌐 **FastAPI Backend**: http://localhost:8000
+2. 🖥️ **NiceGUI Dashboard**: http://localhost:8080
+3. 📡 **Sensor Reader** collecting data in background
+4. 🤖 **ML Model** making predictions
+5. 📊 **Charts** updating in real-time
 
 ---
 

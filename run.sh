@@ -34,6 +34,19 @@ fi
 # ------------------------------------------------------
 export API_BASE="http://localhost:8000"
 
+if [ ! -f ".env" ]; then
+    echo "❌ ERROR: .env file not found!"
+    echo ""
+    echo "Please create a .env file with your configuration:"
+    echo "  1. Copy .env.example to .env"
+    echo "  2. Edit .env with your API keys"
+    echo ""
+    echo "Example:"
+    echo "  cp .env.example .env"
+    echo ""
+    exit 1
+fi
+
 if [ -f ".env" ]; then
     echo "🔐 Loading .env variables..."
     export $(grep -v '^#' .env | xargs)
