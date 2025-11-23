@@ -1,4 +1,6 @@
-# Weather Prediction System 🌤️
+[![Image Unavailable](areoLogo.jpeg)]()
+
+# AeroSync - Weather Prediction System 🌤️
 
 A comprehensive IoT-based weather prediction system that collects real-time sensor data, integrates with WeatherAPI, trains machine learning models, and provides forecasts through a modern web interface powered by FastAPI backend and NiceGUI dashboard with beautiful visualizations.
 
@@ -90,13 +92,13 @@ app2/
 - **Plotly**: Interactive charts
 
 ### Hardware
-- **ESP32/Arduino**: IoT weather station
-- **BMP280**: Temperature, humidity, pressure sensor
+- **Arduino**: IoT weather station
+- **DHT-22**: Temperature and humidity sensor
+- **BMP280**: Pressure sensor
 - **Rain Gauge**: GPIO-based rainfall detection
 
 ### External APIs
 - **WeatherAPI**: Current weather and forecasts
-- **Google Gemini API**: Advanced AI forecasting
 
 ## 📦 Dependencies
 
@@ -190,18 +192,20 @@ The script will:
 
 ## 📡 Hardware Setup
 
-### ESP32/Arduino Weather Station
+### Arduino Weather Station
 
 1. **Upload firmware:**
    - Open `hardware/weather_station.ino` in Arduino IDE
-   - Select your board (ESP32/Arduino)
+   - Select your board (Arduino)
    - Upload to device
 
 2. **Connect sensors:**
+   - **DHT-22**: I2C connection (+, OUT, -)
    - **BMP280**: I2C connection (SDA, SCL)
    - **Rain Gauge**: GPIO pin (configurable)
+   - **OLED-DISPLAY**: If Available
 
-3. **Configure serial port:**
+4. **Configure serial port:**
    Update `.env` or `serial/serial_reader.py`:
    ```python
    SERIAL_PORT = "/dev/ttyUSB0"  # Linux/Mac
@@ -210,8 +214,8 @@ The script will:
    ```
 
 ### Supported Sensors
-- **Temperature**: BMP280 (°C)
-- **Humidity**: BMP280 (%)
+- **Temperature**: DHT-22 (°C)
+- **Humidity**: DHT-22 (%)
 - **Pressure**: BMP280 (hPa)
 - **Rainfall**: GPIO-based rain gauge (mm)
 
@@ -397,12 +401,9 @@ For issues or questions:
 
 ### Connect with FlareSome
 
-[![GitHub](https://img.shields.io/badge/GitHub-FlareSome-181717?style=for-the-badge&logo=github)](https://github.com/FlareSome)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/flaresome)
-[![Twitter](https://img.shields.io/badge/Twitter-Follow-1DA1F2?style=for-the-badge&logo=twitter)](https://twitter.com/flaresome)
-[![Email](https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail)](mailto:contact@flaresome.dev)
-
-> **Note**: Replace the URLs above with your actual social media profiles
+[![LinkedIn](https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff)](https://linkedin.com/in/ashif-anowar-flareSome)
+[![X](https://img.shields.io/badge/X-%23000000.svg?logo=X&logoColor=white)](https://x.com/flareSome07?t=O0SrexzD9_wauo-vk6Xlng&s=09)
+[![Email](https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail)](mailto:ashif.anowar0607@gmail.com)
 
 ---
 
