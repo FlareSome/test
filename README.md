@@ -190,6 +190,91 @@ The script will:
    - FastAPI Backend: `http://localhost:8000`
    - NiceGUI Dashboard: `http://localhost:8080`
 
+### Option 3: Docker Deployment (Cross-Platform) 🐳
+
+Docker provides the easiest way to run this project on **any platform** (Windows, Linux, macOS) without worrying about dependencies or environment setup.
+
+#### Prerequisites
+- **Docker Desktop** installed:
+  - Windows: [Download Docker Desktop](https://docs.docker.com/desktop/install/windows-install/) (requires WSL2)
+  - Mac: [Download Docker Desktop](https://docs.docker.com/desktop/install/mac-install/)
+  - Linux: [Install Docker Engine](https://docs.docker.com/engine/install/)
+
+#### Quick Start with Docker
+
+**Linux/Mac:**
+```bash
+# Make the script executable (first time only)
+chmod +x docker-run.sh
+
+# Run the application
+./docker-run.sh
+```
+
+**Windows:**
+```bash
+# Simply run the batch file
+docker-run.bat
+```
+
+The Docker setup will:
+1. ✅ Build the Docker image with all dependencies
+2. ✅ Start all three services (Serial Reader, FastAPI, NiceGUI)
+3. ✅ Expose ports 8000 (API) and 8080 (UI)
+4. ✅ Persist database across container restarts
+5. ✅ Auto-restart on failure
+
+**Access the application:**
+- FastAPI Backend: `http://localhost:8000`
+- NiceGUI Dashboard: `http://localhost:8080`
+
+#### Manual Docker Commands
+
+If you prefer manual control:
+
+```bash
+# Build the image
+docker compose build
+
+# Start the containers
+docker compose up
+
+# Run in background (detached mode)
+docker compose up -d
+
+# Stop the containers
+docker compose down
+
+# View logs
+docker compose logs -f
+```
+
+#### Docker with Serial Port (IoT Hardware)
+
+If you have an IoT weather station connected via serial port:
+
+**Linux/Mac:**
+1. Find your serial port: `ls /dev/tty*`
+2. Edit `docker-compose.yml` and uncomment the `devices` section:
+   ```yaml
+   devices:
+     - /dev/ttyUSB0:/dev/ttyUSB0  # Replace with your port
+   ```
+3. Run: `./docker-run.sh`
+
+**Windows:**
+Serial port passthrough on Windows Docker is complex. For IoT hardware access, consider:
+- Using WSL2 with USB passthrough
+- Running the serial reader natively on Windows
+- Using a network-based serial solution
+
+#### Docker Advantages
+- ✅ **Cross-platform**: Works identically on Windows, Linux, and macOS
+- ✅ **No dependency conflicts**: Isolated environment
+- ✅ **Easy cleanup**: Remove everything with `docker compose down`
+- ✅ **Reproducible**: Same environment every time
+- ✅ **Quick setup**: No manual Python/venv configuration
+
 ## 📡 Hardware Setup
 
 ### Arduino Weather Station
@@ -386,7 +471,8 @@ The system is designed to run 24/7:
 - [ ] Multi-location support
 - [ ] WebSocket real-time updates
 - [ ] User authentication
-- [ ] Cloud deployment (Docker, Kubernetes)
+- [x] Docker deployment ✅
+- [ ] Cloud deployment (Kubernetes)
 
 ## 👤 Author
 

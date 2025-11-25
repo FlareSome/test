@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 router = APIRouter()
-API_KEY = os.getenv("WEATHER_API_KEY")
+API_KEY = os.getenv("WEATHERAPI_KEY")
 
 # Simple in-memory cache
 _cache_now = {"data": None, "timestamp": 0}

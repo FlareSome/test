@@ -29,7 +29,7 @@ def find_port():
             return p.device
     return None
 
-def safe_float(v, default=0.0):
+def safe_float(v, default=None):
     try:
         return float(v)
     except:
@@ -83,23 +83,29 @@ def run_serial_loop():
                         firmware = data.get("firmware", None)
 
                         # Robust conversions
-                        temp = safe_float(data.get("temperature", 0.0))
-                        humidity = safe_float(data.get("humidity", 0.0))
-                        pressure = safe_float(data.get("pressure", 0.0))
+                        temp = safe_float(data.get("temperature"))
+                        humidity = safe_float(data.get("humidity"))
+                        pressure = safe_float(data.get("pressure"))
                         rain_raw = data.get("rain_value", 0)
                         rain_digital = int(data.get("rain_digital", 1))
 
                         # Convert raw rain analog to mm using a simple calibration
+                        # 0-1023 -> 0-10mm (example)
                         try:
                             rain_raw_f = float(rain_raw)
                         except:
                             rain_raw_f = 0.0
 
-                        if rain_raw_f > 50:
-                            # map 0-1023 -> 0-10mm (example)
-                            rainfall_mm = round((rain_raw_f / 1023.0) * 10.0, 2)
+                        # If digital sensor says DRY (1), force 0mm
+                        if rain_digital == 1:
+                            rainfall_mm = 0.0
                         else:
-                            rainfall_mm = round(rain_raw_f, 2)
+                            # It is WET (0). Map analog value.
+                            # Usually lower analog value = wetter? Or higher? 
+                            # Assuming higher = wetter based on previous logic (rain_raw_f / 1023)
+                            # Previous logic: if > 50: (rain_raw_f / 1023.0) * 10.0
+                            # We will apply this scaling consistently.
+                            rainfall_mm = round((rain_raw_f / 1023.0) * 10.0, 2)
 
                         status = "Dry" if rain_digital == 1 else "Wet"
 

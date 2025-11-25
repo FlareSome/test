@@ -632,7 +632,9 @@ def main_page():
         data = await loop.run_in_executor(None, lambda: safe_get("/api/combined"))
         
         # Always hide loading screen after first attempt (success or failure)
-        if state['loading_screen']:
+        # Always hide loading screen after first attempt (success or failure)
+        loading_screen_el = state.get('loading_screen')
+        if loading_screen_el:
             # Ensure minimum 3s duration
             elapsed = time.time() - state['start_time']
             remaining = 3 - elapsed
@@ -641,9 +643,9 @@ def main_page():
 
             try:
                 # Check if not already hidden
-                if 'hidden' not in str(state['loading_screen']._classes):
-                    state['loading_screen']._classes.append('hidden')
-                    state['loading_screen'].update()
+                if 'hidden' not in str(loading_screen_el._classes):
+                    loading_screen_el._classes.append('hidden')
+                    loading_screen_el.update()
             except Exception as e:
                 print(f"[ui] Error hiding loading screen: {e}")
             
@@ -1049,8 +1051,23 @@ def main_page():
 
     # (Action buttons moved to forecast section above)
 
-    # Initial Fetch
-    ui.timer(0.1, refresh_weather, once=True)
+    # Auto-sync WeatherAPI on startup to ensure data is available
+    async def initial_setup():
+        """Sync WeatherAPI data on startup, then refresh UI"""
+        try:
+            print("[ui] Running initial WeatherAPI sync...")
+            # Sync WeatherAPI data
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, lambda: safe_get("/api/weatherapi/sync"))
+            print("[ui] Initial sync complete")
+        except Exception as e:
+            print(f"[ui] Initial sync error: {e}")
+        
+        # Now refresh the UI
+        await refresh_weather()
+    
+    # Initial Setup and Fetch
+    ui.timer(0.1, initial_setup, once=True)
     ui.timer(REFRESH_SECONDS, refresh_weather)
 
 ui.run(title="WeatherAI Dashboard", host="0.0.0.0", port=8080, reload=True)

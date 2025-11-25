@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  weather-app:
+    build: .
+    container_name: weather-prediction-app
+    ports:
+      - "8000:8000"  # FastAPI backend
+      - "8080:8080"  # NiceGUI frontend
+    environment:
+      - API_BASE=http://localhost:8000
+    env_file:
+      - .env
+    volumes:
+      # Persist database across container restarts
+      - ./weather_data.db:/app/weather_data.db
+      - ./logs:/app/logs
+    restart: unless-stopped
+    
+    # Uncomment the following lines if you need serial port access
+    # Note: Replace /dev/ttyUSB0 with your actual serial port
+    # Linux/Mac example:
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+    
+    # Windows users: Serial port passthrough is more complex
+    # You may need to use a different approach or run without Docker for hardware access
+
+networks:
+  default:
+    name: weather-network

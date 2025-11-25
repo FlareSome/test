@@ -49,7 +49,9 @@ fi
 
 if [ -f ".env" ]; then
     echo "🔐 Loading .env variables..."
-    export $(grep -v '^#' .env | xargs)
+    set -a  # Automatically export all variables
+    source .env
+    set +a  # Stop automatically exporting
 fi
 
 mkdir -p logs
