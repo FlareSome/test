@@ -756,6 +756,10 @@ def main_page():
         # 2b. Update Sparklines (Feature #4)
         from db.db import get_hourly_trends
         hourly_data = get_hourly_trends(hours=24)
+        
+        # Fallback to API forecast if DB is empty
+        api_hourly = data.get("hourly_forecast", [])
+
         if not hourly_data.empty:
             # Feels Like sparkline (using temp as proxy)
             temp_data = hourly_data['avg_temp'].fillna(0).tolist()
@@ -764,6 +768,15 @@ def main_page():
             
             # Pressure sparkline
             pressure_data = hourly_data['avg_pressure'].fillna(0).tolist()
+            if pressure_data:
+                state['pressure_sparkline'].update_figure(create_sparkline(pressure_data, '#A855F7'))
+        elif api_hourly:
+            # Use API forecast
+            temp_data = [h["temp"] for h in api_hourly]
+            if temp_data:
+                state['feels_sparkline'].update_figure(create_sparkline(temp_data, '#FB923C'))
+            
+            pressure_data = [h["pressure"] for h in api_hourly]
             if pressure_data:
                 state['pressure_sparkline'].update_figure(create_sparkline(pressure_data, '#A855F7'))
 
@@ -869,6 +882,7 @@ def main_page():
                 y=ai_data, 
                 name="AI Prediction",
                 line=dict(color='#3B82F6', width=3, shape='spline'),
+                connectgaps=True,
                 mode='lines+markers',
                 marker=dict(
                     size=10, 
@@ -934,6 +948,7 @@ def main_page():
                 y=humidity_data,
                 name="Humidity",
                 line=dict(color='#14B8A6', width=3, shape='spline'),
+                connectgaps=True,
                 mode='lines+markers',
                 marker=dict(size=8, color='#14B8A6', line=dict(width=2, color='#FFFFFF')),
                 hovertemplate='<b>Humidity</b><br>%{y:.0f}%<extra></extra>'
@@ -965,6 +980,7 @@ def main_page():
                 y=pressure_data,
                 name="Pressure",
                 line=dict(color='#A855F7', width=3, shape='spline'),
+                connectgaps=True,
                 mode='lines+markers',
                 marker=dict(size=8, color='#A855F7', line=dict(width=2, color='#FFFFFF')),
                 hovertemplate='<b>Pressure</b><br>%{y:.0f} hPa<extra></extra>'

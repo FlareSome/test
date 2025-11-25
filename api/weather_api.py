@@ -6,17 +6,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 router = APIRouter()
-API_KEY = os.getenv("WEATHER_API_KEY")
+API_KEY = os.getenv("WEATHERAPI_KEY")
+CITY_NAME = os.getenv("CITY_NAME", "Kolkata")  # Default to Kolkata if not set
 
 # Simple in-memory cache
 _cache_now = {"data": None, "timestamp": 0}
 _cache_7day = {"data": None, "timestamp": 0}
 CACHE_DURATION = 300  # 5 minutes
 
-def get_weatherapi_now(city="Kolkata"):
+def get_weatherapi_now(city=None):
     """Fetch current weather from WeatherAPI (cached)."""
     if not API_KEY:
         return None
+    
+    if city is None:
+        city = CITY_NAME
 
     import time
     now = time.time()
@@ -46,10 +50,13 @@ def get_weatherapi_now(city="Kolkata"):
         print("WeatherAPI current error:", e)
         return _cache_now["data"] # Return stale data if fetch fails
 
-def get_weatherapi_7day(city="Kolkata"):
+def get_weatherapi_7day(city=None):
     """7-day forecast (cached)."""
     if not API_KEY:
         return None
+    
+    if city is None:
+        city = CITY_NAME
 
     import time
     now = time.time()
@@ -69,6 +76,18 @@ def get_weatherapi_7day(city="Kolkata"):
                 "condition": d["day"]["condition"]["text"],
                 "sunrise": d["astro"]["sunrise"],
                 "sunset": d["astro"]["sunset"],
+                "humidity": d["day"].get("avghumidity", 0),
+                "rainfall": d["day"].get("totalprecip_mm", 0),
+                "hourly": [
+                    {
+                        "time_epoch": h["time_epoch"],
+                        "temp_c": h["temp_c"],
+                        "pressure_mb": h["pressure_mb"],
+                        "humidity": h["humidity"],
+                        "condition": h["condition"]["text"]
+                    }
+                    for h in d["hour"]
+                ]
             }
             for d in r["forecast"]["forecastday"]
         ]

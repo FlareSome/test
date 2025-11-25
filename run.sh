@@ -18,15 +18,24 @@ BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$BASE_DIR"
 
 # ------------------------------------------------------
-# 2) Activate virtual environment
+# 2) Activate virtual environment (Auto-create if missing)
 # ------------------------------------------------------
-if [ -d "venv" ]; then
-    echo "🔧 Activating virtual environment..."
-    source venv/bin/activate
+if [ ! -d "venv" ]; then
+    echo "🔧 venv not found! Creating one..."
+    python3 -m venv venv
+fi
+
+echo "🔧 Activating virtual environment..."
+source venv/bin/activate
+
+# ------------------------------------------------------
+# 2.5) Install/Update Dependencies
+# ------------------------------------------------------
+if [ -f "requirements.txt" ]; then
+    echo "📦 Checking/Installing dependencies..."
+    pip install -r requirements.txt
 else
-    echo "❌ venv not found! Create one with:"
-    echo "python3 -m venv venv"
-    exit 1
+    echo "⚠️ requirements.txt not found! Skipping dependency install."
 fi
 
 # ------------------------------------------------------
@@ -35,21 +44,21 @@ fi
 export API_BASE="http://localhost:8000"
 
 if [ ! -f ".env" ]; then
-    echo "❌ ERROR: .env file not found!"
-    echo ""
-    echo "Please create a .env file with your configuration:"
-    echo "  1. Copy .env.example to .env"
-    echo "  2. Edit .env with your API keys"
-    echo ""
-    echo "Example:"
-    echo "  cp .env.example .env"
-    echo ""
-    exit 1
+    if [ -f ".env.example" ]; then
+        echo "⚠️ .env file not found! Copying .env.example to .env..."
+        cp .env.example .env
+        echo "✅ Created .env from .env.example. Please edit it with your real keys if needed."
+    else
+        echo "❌ ERROR: .env file not found and no .env.example found!"
+        exit 1
+    fi
 fi
 
 if [ -f ".env" ]; then
     echo "🔐 Loading .env variables..."
-    export $(grep -v '^#' .env | xargs)
+    set -a
+    source .env
+    set +a
 fi
 
 mkdir -p logs
