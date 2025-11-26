@@ -70,7 +70,7 @@ app2/
 │   └── themes/                 # UI theme definitions
 ├── requirements.txt            # Python dependencies
 ├── run.sh                      # Linux/Mac startup script
-├── run.bat                     # Windows startup script
+├── run.sh                      # Linux/Mac startup script
 └── README.md                   # This file
 ```
 
@@ -222,7 +222,7 @@ chmod +x docker-run.sh
 ```
 
 **Windows:**
-```bash
+```bat
 # Simply run the batch file
 docker-run.bat
 ```
