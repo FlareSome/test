@@ -35,23 +35,29 @@ ENV API_BASE=http://localhost:8000
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
-set -e\n\
-echo "🚀 Starting WeatherProject in Docker..."\n\
-\n\
-# Start Serial Reader in background\n\
-echo "📡 Starting serial reader..."\n\
-python serial/serial_reader.py > logs/serial.log 2>&1 &\n\
-SERIAL_PID=$!\n\
-\n\
-# Start FastAPI backend in background\n\
-echo "⚙️ Starting FastAPI backend..."\n\
-uvicorn main:app --host 0.0.0.0 --port 8000 > logs/api.log 2>&1 &\n\
-API_PID=$!\n\
-\n\
-# Start NiceGUI UI in foreground\n\
-echo "🌐 Starting NiceGUI UI..."\n\
-python ui/ui.py\n\
-' > /app/docker-start.sh && chmod +x /app/docker-start.sh
+    set -e\n\
+    echo "🚀 Starting WeatherProject in Docker..."\n\
+    \n\
+    # Check for ML Model and Setup if missing\n\
+    if [ ! -f "db/trained_weather_model.pkl" ]; then\n\
+    echo "⚠️ ML Model not found! Running setup..."\n\
+    python setup_ml.py\n\
+    fi\n\
+    \n\
+    # Start Serial Reader in background\n\
+    echo "📡 Starting serial reader..."\n\
+    python serial/serial_reader.py > logs/serial.log 2>&1 &\n\
+    SERIAL_PID=$!\n\
+    \n\
+    # Start FastAPI backend in background\n\
+    echo "⚙️ Starting FastAPI backend..."\n\
+    uvicorn main:app --host 0.0.0.0 --port 8000 > logs/api.log 2>&1 &\n\
+    API_PID=$!\n\
+    \n\
+    # Start NiceGUI UI in foreground\n\
+    echo "🌐 Starting NiceGUI UI..."\n\
+    python ui/ui.py\n\
+    ' > /app/docker-start.sh && chmod +x /app/docker-start.sh
 
 # Run the startup script
 CMD ["/app/docker-start.sh"]

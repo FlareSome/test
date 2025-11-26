@@ -30,6 +30,14 @@ else
 fi
 
 # ------------------------------------------------------
+# 2.5) Check for ML Model and Setup if missing
+# ------------------------------------------------------
+if [ ! -f "db/trained_weather_model.pkl" ]; then
+    echo "⚠️ ML Model not found! Running setup..."
+    python setup_ml.py
+fi
+
+# ------------------------------------------------------
 # 3) Load environment variables
 # ------------------------------------------------------
 export API_BASE="http://localhost:8000"

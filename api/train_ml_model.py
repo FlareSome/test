@@ -11,7 +11,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 
 DATA_FILE = "raw_data.csv"
-MODEL_FILE = "trained_weather_model.pkl"
+# Save model to db directory where the app expects it
+MODEL_FILE = os.path.join("db", "trained_weather_model.pkl")
 
 FEATURES = [
     "temperature_c",

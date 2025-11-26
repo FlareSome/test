@@ -121,25 +121,35 @@ See `requirements.txt` for complete list.
 
 ## 🚀 Quick Start
 
-### Option 1: Automated Setup (Recommended)
+### 🐧 Linux / macOS
+The easiest way to run the project is using the helper script:
 
-**Linux/Mac:**
 ```bash
-chmod +x run.sh
+# 1. Clone the repository
+git clone https://github.com/yourusername/weather-project.git
+cd weather-project
+
+# 2. Run the startup script
 ./run.sh
 ```
+This script will:
+- Create a virtual environment (if missing)
+- Install dependencies
+- **Automatically generate sample data & train the ML model** (if missing)
+- Start all services (Serial, API, UI)
 
-**Windows:**
+### 🪟 Windows
+For Windows, we recommend using **Docker Desktop** to ensure everything runs smoothly.
+
+1.  **Install Docker Desktop** if you haven't already.
+2.  Run the following command in PowerShell or Command Prompt:
+
 ```bash
-run.bat
+docker-compose up --build
 ```
+The container will automatically handle the setup, data generation, and model training.
 
-The script will:
-1. Create virtual environment (if needed)
-2. Install dependencies
-3. Start serial reader (background)
-4. Start FastAPI + NiceGUI server
-5. Open dashboard in browser at `http://localhost:8000`
+Access the dashboard at: **http://localhost:8080**
 
 ### Option 2: Manual Setup
 

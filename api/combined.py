@@ -117,8 +117,12 @@ def combined_weather():
     if ml_list:
         labels = [d["day"] for d in ml_list]
         ai_vals = [d["temp_high_c"] for d in ml_list]
-    else:
+    elif daily:
         labels = [d["day"] for d in daily]
+        ai_vals = []
+    else:
+        # Fallback: Use historical dates if no forecast available
+        labels = [d.strftime("%Y-%m-%d") for d in pd.to_datetime(trends_df['date']).tolist()] if not trends_df.empty else []
         ai_vals = []
 
     # Pad API highs/lows to 7 if shorter

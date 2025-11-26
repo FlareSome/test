@@ -59,6 +59,12 @@ def get_weatherapi_7day(city="Kolkata"):
     try:
         url = f"http://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=7&aqi=no"
         r = requests.get(url, timeout=10).json()
+        
+        # Check for API error response
+        if "error" in r:
+            print(f"WeatherAPI 7-day failed: {r['error'].get('message')}. Retrying with 1 day...")
+            url = f"http://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=1&aqi=no"
+            r = requests.get(url, timeout=10).json()
 
         data = [
             {
