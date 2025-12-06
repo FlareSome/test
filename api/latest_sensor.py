@@ -26,14 +26,18 @@ def get_latest_sensor():
             return None
 
         # Freshness check: if older than 30 mins, treat as disconnected
-        from datetime import datetime, timedelta
+        from datetime import datetime, timedelta, timezone
         
         # Parse timestamp (assuming ISO format as per db.py)
         try:
             ts_str = row[0]
             reading_time = datetime.fromisoformat(ts_str)
-            # If older than 30 seconds, treat as disconnected
-            if datetime.now() - reading_time > timedelta(seconds=30):
+            # Ensure reading_time is aware (assume UTC if naive, as we now send UTC)
+            if reading_time.tzinfo is None:
+                reading_time = reading_time.replace(tzinfo=timezone.utc)
+            
+            # Compare with current UTC time
+            if datetime.now(timezone.utc) - reading_time > timedelta(seconds=30):
                 # Data is stale
                 return None
         except Exception as e:

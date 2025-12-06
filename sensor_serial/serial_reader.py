@@ -1,7 +1,7 @@
 import serial
 import serial.tools.list_ports
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 import os
 import sys
@@ -110,7 +110,7 @@ def run_serial_loop():
                         status = "Dry" if rain_digital == 1 else "Wet"
 
                         row = {
-                            "timestamp": datetime.now().isoformat(),
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
                             "temperature_c": temp,
                             "humidity_perc": humidity,
                             "pressure_hpa": pressure,
