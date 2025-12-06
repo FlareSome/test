@@ -19,7 +19,7 @@ from api.weather_api import sync_weatherapi
 # --- Configuration ---
 API_BASE = os.getenv("API_BASE", "http://localhost:8000")
 CITY = os.getenv("CITY_NAME", "New Town, West Bengal")
-REFRESH_SECONDS = 2  # Fast refresh for sensor data (API is cached)
+REFRESH_SECONDS = 10  # Slower refresh for cloud stability
 
 # --- Styling Constants ---
 # Using Tailwind arbitrary values in code, but defining common colors here

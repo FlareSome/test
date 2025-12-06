@@ -32,8 +32,8 @@ def get_latest_sensor():
         try:
             ts_str = row[0]
             reading_time = datetime.fromisoformat(ts_str)
-            # If older than 60 seconds, treat as disconnected (relaxed for cloud bridge)
-            if datetime.now() - reading_time > timedelta(seconds=60):
+            # If older than 30 seconds, treat as disconnected
+            if datetime.now() - reading_time > timedelta(seconds=30):
                 # Data is stale
                 return None
         except Exception as e:
