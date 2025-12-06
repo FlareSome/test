@@ -54,7 +54,7 @@ app2/
 │   └── ui.py                   # NiceGUI dashboard interface
 ├── db/
 │   └── db.py                   # Database operations (SQLite)
-├── serial/
+├── sensor_serial/
 │   └── serial_reader.py        # IoT sensor data collection
 ├── utils/
 │   └── theme_manager.py        # Dark/light theme management

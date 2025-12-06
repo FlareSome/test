@@ -67,8 +67,8 @@ mkdir -p logs
 # ------------------------------------------------------
 # 4) Start Serial Reader
 # ------------------------------------------------------
-echo "📡 Starting serial/serial_reader.py..."
-python serial/serial_reader.py > logs/serial.log 2>&1 &
+echo "📡 Starting sensor_serial/serial_reader.py..."
+python sensor_serial/serial_reader.py > logs/serial.log 2>&1 &
 SERIAL_PID=$!
 echo "✔ serial_reader running (PID: $SERIAL_PID)"
 

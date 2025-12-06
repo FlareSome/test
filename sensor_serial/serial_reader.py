@@ -122,6 +122,9 @@ def run_serial_loop():
                         # Minimal console log
                         print(f"[{row['timestamp']}] Inserted: T={temp}C H={humidity}% P={pressure}hPa Rain={rainfall_mm}mm")
                         
+                        # Push to remote (Bridge Mode)
+                        push_to_remote(row)
+                        
                     except serial.SerialException as e:
                         print(f"❌ Serial connection lost: {e}")
                         break # Break inner loop to reconnect
@@ -132,6 +135,39 @@ def run_serial_loop():
         except Exception as e:
             print(f"❌ Failed to connect to {port}: {e}")
             time.sleep(2)
+
+def push_to_remote(row):
+    """
+    Push reading to remote API if configured.
+    """
+    remote_url = os.getenv("REMOTE_API_URL")
+    secret = os.getenv("BRIDGE_SECRET")
+    
+    if not remote_url:
+        return
+
+    try:
+        # Ensure URL ends with /api/sensor-data if not fully specified
+        # But user might put full URL. Let's assume full URL or append if needed.
+        # Ideally user sets REMOTE_API_URL="https://app.onrender.com/api/sensor-data"
+        
+        headers = {
+            "Content-Type": "application/json",
+            "X-Bridge-Secret": secret or ""
+        }
+        
+        # We need to import requests. It is in requirements.txt
+        import requests
+        
+        resp = requests.post(remote_url, json=row, headers=headers, timeout=3)
+        if resp.status_code == 200:
+            print(f"☁️  Pushed to cloud: {resp.status_code}")
+        else:
+            print(f"⚠️  Cloud push failed: {resp.status_code} - {resp.text}")
+            
+    except Exception as e:
+        print(f"⚠️  Cloud push error: {e}")
+
 
 if __name__ == "__main__":
     try:

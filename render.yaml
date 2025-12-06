@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: weather-dashboard
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: BRIDGE_SECRET
+        generateValue: true
+      - key: WEATHERAPI_KEY
+        sync: false
+      - key: CITY_NAME
+        value: "New Town, West Bengal"
