@@ -12,6 +12,9 @@ import time
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.theme_manager import ThemeManager
+from api.combined import combined_weather
+from api.ml_forecast import get_ml_forecast
+from api.weather_api import sync_weatherapi
 
 # --- Configuration ---
 API_BASE = os.getenv("API_BASE", "http://localhost:8000")
@@ -25,13 +28,25 @@ TEXT_COLOR = "#F1F5F9"   # Slate-100
 MUTED_COLOR = "#94A3B8"  # Slate-400
 
 # --- Helper Functions ---
+# --- Helper Functions ---
 def safe_get(path, fallback=None):
+    """
+    Directly call internal API functions instead of requests.get
+    to avoid port/networking issues on Render.
+    """
     try:
-        r = requests.get(API_BASE + path, timeout=5)
-        r.raise_for_status()
-        return r.json()
+        if path == "/api/combined":
+            return combined_weather()
+        elif path == "/api/ml_forecast":
+            return get_ml_forecast()
+        elif path == "/api/weatherapi/sync":
+            return sync_weatherapi()
+        else:
+            # Fallback for unknown paths (shouldn't happen with current UI)
+            print(f"[ui] Unknown internal path: {path}")
+            return fallback
     except Exception as e:
-        print(f"[ui] fetch error {path}: {e}")
+        print(f"[ui] internal call error {path}: {e}")
         return fallback
 
 def _format_temp(v):
@@ -574,13 +589,13 @@ def main_page():
                     def run_action(label, api_endpoint):
                         try:
                             ui.notify(f"Triggering {label}...", type='info')
-                            r = requests.get(API_BASE + api_endpoint, timeout=10)
-                            data = r.json()
-                            msg = data.get("message") or "Action Complete"
-                            if r.status_code == 200:
+                            # Use safe_get for internal calls
+                            data = safe_get(api_endpoint)
+                            if data:
+                                msg = data.get("message") or "Action Complete"
                                 ui.notify(f"Success: {msg}", type='positive')
                             else:
-                                ui.notify(f"Error: {msg}", type='negative')
+                                ui.notify(f"Error: Action failed", type='negative')
                             refresh_weather()
                         except Exception as e:
                             ui.notify(f"Failed: {str(e)}", type='negative')
