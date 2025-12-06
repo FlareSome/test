@@ -73,20 +73,12 @@ SERIAL_PID=$!
 echo "✔ serial_reader running (PID: $SERIAL_PID)"
 
 # ------------------------------------------------------
-# 5) Start FastAPI backend (main.py)
+# 6) Start FastAPI backend (main.py) + NiceGUI
 # ------------------------------------------------------
-echo "⚙️ Starting FastAPI backend (main.py)..."
+echo "⚙️ Starting WeatherProject (API + UI)..."
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload > logs/api.log 2>&1 &
 API_PID=$!
-echo "✔ FastAPI backend running (PID: $API_PID)"
-
-# ------------------------------------------------------
-# 6) Start NiceGUI UI (ui/ui.py)
-# ------------------------------------------------------
-echo "🌐 Starting NiceGUI UI (ui/ui.py)..."
-python ui/ui.py > logs/ui.log 2>&1 &
-UI_PID=$!
-echo "✔ NiceGUI UI running (PID: $UI_PID)"
+echo "✔ WeatherProject running (PID: $API_PID)"
 
 # ------------------------------------------------------
 # 7) Final Message
@@ -94,9 +86,7 @@ echo "✔ NiceGUI UI running (PID: $UI_PID)"
 echo ""
 echo "🚀 WeatherProject is LIVE!"
 echo "----------------------------------------"
-echo "🔗 FastAPI Backend: http://localhost:8000"
-echo "🔗 NiceGUI Frontend: http://localhost:8080"
-echo "🛰️  Serial Reader: Running in background"
+echo "🔗 Dashboard & API: http://localhost:8000"
 echo "----------------------------------------"
 echo "📄 Logs located in ./logs/"
 echo ""
@@ -106,6 +96,6 @@ echo ""
 # ------------------------------------------------------
 # 9) Handle shutdown
 # ------------------------------------------------------
-trap "echo '🛑 Stopping services...'; kill $SERIAL_PID $API_PID $UI_PID; exit 0" SIGINT
+trap "echo '🛑 Stopping services...'; kill $SERIAL_PID $API_PID; exit 0" SIGINT
 
 wait
