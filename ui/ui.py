@@ -396,6 +396,8 @@ def main_page():
     # Initialize theme
     ui.add_head_html(f"<style>{APP_CSS}</style>")
     ui.add_head_html(f"<style>{ThemeManager.get_css()}</style>")
+    # Ensure mobile responsiveness
+    ui.add_head_html('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">')
     dark = ui.dark_mode(True)  # Default to dark mode
     
     # --- UI Element References (State) ---

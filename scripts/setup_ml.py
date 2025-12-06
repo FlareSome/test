@@ -1,15 +1,21 @@
+import sys
 import os
+
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import pandas as pd
 import sqlite3
-from generate_sample_data import generate_sample_data
+from scripts.generate_sample_data import generate_sample_data
 from api.train_ml_model import train_model
 
 def export_db_to_csv():
     """Exports reading data from DB to raw_data.csv for training."""
     print("📦 Exporting database to raw_data.csv...")
     
-    # Connect to DB
-    db_path = os.path.join("db", "weather_data.db")
+    # Connect to DB (use absolute path to project root)
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    db_path = os.path.join(base_dir, "db", "weather_data.db")
     if not os.path.exists(db_path):
         print("❌ Database not found!")
         return False
@@ -23,8 +29,9 @@ def export_db_to_csv():
         return False
         
     # Save to CSV
-    df.to_csv("raw_data.csv", index=False)
-    print(f"✅ Exported {len(df)} rows to raw_data.csv")
+    csv_path = os.path.join(base_dir, "data", "raw_data.csv")
+    df.to_csv(csv_path, index=False)
+    print(f"✅ Exported {len(df)} rows to {csv_path}")
     return True
 
 def main():

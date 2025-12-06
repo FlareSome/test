@@ -10,9 +10,10 @@ import os
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 
-DATA_FILE = "raw_data.csv"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_FILE = os.path.join(BASE_DIR, "data", "raw_data.csv")
 # Save model to db directory where the app expects it
-MODEL_FILE = os.path.join("db", "trained_weather_model.pkl")
+MODEL_FILE = os.path.join(BASE_DIR, "db", "trained_weather_model.pkl")
 
 FEATURES = [
     "temperature_c",

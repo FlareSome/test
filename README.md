@@ -56,21 +56,24 @@ app2/
 │   └── db.py                   # Database operations (SQLite)
 ├── sensor_serial/
 │   └── serial_reader.py        # IoT sensor data collection
+├── scripts/
+│   ├── setup_ml.py             # ML pipeline setup & training
+│   └── generate_sample_data.py # Sample data generator
+├── data/
+│   └── raw_data.csv            # Training data (generated)
 ├── utils/
 │   └── theme_manager.py        # Dark/light theme management
 ├── services/
 │   ├── condition_map.py        # Weather condition mapping
 │   ├── merger.py               # Data merging utilities
 │   └── utils.py                # Helper functions
-├── core/
-│   └── config.py               # Configuration management
 ├── hardware/
 │   └── weather_station.ino     # Arduino/ESP32 firmware
 ├── assets/
 │   └── themes/                 # UI theme definitions
 ├── requirements.txt            # Python dependencies
-├── run.sh                      # Linux/Mac startup script
-├── run.sh                      # Linux/Mac startup script
+├── render.yaml                 # Render deployment config
+├── run.sh                      # Startup script
 └── README.md                   # This file
 ```
 
@@ -328,7 +331,7 @@ Serial port passthrough on Windows Docker is complex. For IoT hardware access, c
 
 ### Training
 ```bash
-python api/train_ml_model.py
+python scripts/setup_ml.py
 ```
 
 Model is saved to `ml_weather_model.pkl` for predictions.
