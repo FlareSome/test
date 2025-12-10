@@ -1149,4 +1149,5 @@ def main_page():
     ui.timer(0.1, refresh_weather, once=True)
     ui.timer(REFRESH_SECONDS, refresh_weather)
 
-ui.run(title="WeatherAI Dashboard", host="0.0.0.0", port=8080, reload=True)
+if __name__ in {"__main__", "__mp_main__"}:
+    ui.run(title="WeatherAI Dashboard", host="0.0.0.0", port=8080, reload=True)
