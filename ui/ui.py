@@ -375,6 +375,13 @@ body.body--dark .skeleton {
     from { opacity: 1; }
     to { opacity: 0; }
 }
+
+@media (max-width: 768px) {
+    .desktop-only { display: none !important; }
+}
+@media (min-width: 769px) {
+    .mobile-only { display: none !important; }
+}
 """
 
 @ui.page('/')
@@ -415,17 +422,17 @@ def main_page():
             state['city_label'] = ui.label(CITY).classes('text-xl text-slate-700 dark:text-slate-200 font-bold')
 
         # Center: Title (Absolute)
-        ui.label('Weather Prediction Model').classes('absolute left-1/2 -translate-x-1/2 text-2xl font-bold tracking-tight text-blue-500 dark:text-blue-400 z-10 text-center whitespace-nowrap')
+        ui.label('AeroSync-Weather Prediction Model').classes('absolute left-1/2 -translate-x-1/2 text-2xl font-bold tracking-tight text-blue-500 dark:text-blue-400 z-10 text-center whitespace-nowrap desktop-only')
         
         # Right: Controls
         with ui.row().classes('items-center gap-4'):
             # IoT Status
             with ui.row().classes('items-center gap-2 mr-2'):
                 ui.icon('sensors', size='sm', color='slate-500')
-                state['iot_status'] = ui.label('Checking...').classes('text-base font-bold text-slate-500')
+                state['iot_status'] = ui.label('Checking...').classes('text-base font-bold text-slate-500 desktop-only')
 
             # Status indicator
-            state['updated'] = ui.label('Syncing...').classes('text-base text-slate-600 dark:text-slate-500 mr-2')
+            state['updated'] = ui.label('Syncing...').classes('text-base text-slate-600 dark:text-slate-500 mr-2 desktop-only')
             
             # Theme Toggle with dynamic icon
             def toggle_theme():
@@ -619,7 +626,7 @@ def main_page():
             # 2. Details Grid (2x2)
             with ui.column().classes('w-full md:w-5/12 gap-4'):
                 # Stats Grid - 2 columns, 2 rows
-                with ui.grid().classes('w-full grid-cols-2 gap-4 h-full'):
+                with ui.grid().classes('w-full grid-cols-1 sm:grid-cols-2 gap-4 h-full'):
                     
                     def detail_card(title, icon, color, with_sparkline=True):
                         with ui.column().classes('glass-panel p-5 justify-between h-full'):
