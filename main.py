@@ -32,7 +32,7 @@ app.include_router(weather_router, prefix="/api")
 app.include_router(ml_router, prefix="/api")
 app.include_router(combined_router, prefix="/api")
 
-@app.get("/")
+@app.get("/api/status")
 def root():
     return {"status": "running"}
 
