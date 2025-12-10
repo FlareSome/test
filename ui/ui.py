@@ -14,7 +14,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.theme_manager import ThemeManager
 
 # --- Configuration ---
-API_BASE = os.getenv("API_BASE", "http://localhost:8000")
+PORT = os.getenv("PORT", "8000")
+API_BASE = os.getenv("API_BASE", f"http://localhost:{PORT}")
 CITY = os.getenv("CITY_NAME", "New Town, West Bengal")
 REFRESH_SECONDS = 2  # Fast refresh for sensor data (API is cached)
 

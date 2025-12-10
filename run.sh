@@ -75,7 +75,8 @@ echo "✔ serial_reader running (PID: $SERIAL_PID)"
 # 5) Start FastAPI backend (main.py)
 # ------------------------------------------------------
 echo "⚙️ Starting FastAPI backend (main.py)..."
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload > logs/api.log 2>&1 &
+PORT="${PORT:-8000}"
+uvicorn main:app --host 0.0.0.0 --port "$PORT" --reload > logs/api.log 2>&1 &
 API_PID=$!
 echo "✔ FastAPI backend running (PID: $API_PID)"
 
@@ -93,7 +94,7 @@ echo "✔ NiceGUI UI running (PID: $UI_PID)"
 echo ""
 echo "🚀 WeatherProject is LIVE!"
 echo "----------------------------------------"
-echo "🔗 FastAPI Backend: http://localhost:8000"
+echo "🔗 FastAPI Backend: http://localhost:$PORT"
 echo "🔗 NiceGUI Frontend: http://localhost:8080"
 echo "🛰️  Serial Reader: Running in background"
 echo "----------------------------------------"
