@@ -32,8 +32,8 @@ def get_latest_sensor():
         try:
             ts_str = row[0]
             reading_time = datetime.fromisoformat(ts_str)
-            # If older than 5 seconds, treat as disconnected (sensor sends data every ~0.2s)
-            if datetime.now() - reading_time > timedelta(seconds=5):
+            # If older than 12 seconds, treat as disconnected (sensor sends data every ~5s)
+            if datetime.now() - reading_time > timedelta(seconds=12):
                 # Data is stale
                 return None
         except Exception as e:

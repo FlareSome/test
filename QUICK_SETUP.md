@@ -34,7 +34,7 @@ That's it! The script will:
 
 ### Step 1: Clone/Navigate to Project
 ```bash
-cd app
+cd Weather_Prediction
 ```
 
 ### Step 2: Create Virtual Environment

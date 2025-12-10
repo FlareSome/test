@@ -411,7 +411,7 @@ def main_page():
         # Left: City Name
         with ui.row().classes('items-center gap-2'):
             ui.icon('place', size='xs', color='blue-400')
-            ui.label(CITY).classes('text-xl text-slate-700 dark:text-slate-200 font-bold')
+            state['city_label'] = ui.label(CITY).classes('text-xl text-slate-700 dark:text-slate-200 font-bold')
 
         # Center: Title (Absolute)
         ui.label('Weather Prediction Model').classes('absolute left-1/2 -translate-x-1/2 text-2xl font-bold tracking-tight text-blue-500 dark:text-blue-400 z-10 text-center whitespace-nowrap')
@@ -453,6 +453,81 @@ def main_page():
             
             with ui.button(icon='auto_graph', on_click=lambda: ui.open(API_BASE + "/docs")).props('flat round dense'):
                 ui.tooltip('API Docs')
+
+    # --- Search Bar (Centered below header) ---
+    with ui.row().classes('w-full max-w-md mx-auto mt-20 mb-[-3rem] z-40 relative justify-center'):
+        # Container for input and results
+        with ui.column().classes('w-full relative'):
+            search_input = ui.input(placeholder='Search Location...').classes(
+                'w-full glass-panel px-6 py-2 text-lg text-slate-200 focus:text-white transition-all rounded-full shadow-lg border border-white/10'
+            ).props('rounded outlined dense input-class="text-center"')
+            
+            # Add search icon
+            with search_input.add_slot('prepend'):
+                ui.icon('search', color='blue-400').classes('ml-2')
+            
+            # Results dropdown (absolute positioned)
+            results_container = ui.card().classes(
+                'absolute top-full left-0 w-full mt-2 z-50 glass-panel p-0 overflow-hidden hidden transition-all duration-200'
+            )
+            
+            def select_city(city_name):
+                search_input.value = city_name
+                results_container.classes(add='hidden')
+                handle_search()
+
+            async def update_suggestions(e):
+                val = e.sender.value
+                if len(val) < 3:
+                    results_container.classes(add='hidden')
+                    return
+                
+                try:
+                    # Call search endpoint
+                    loop = asyncio.get_running_loop()
+                    results = await loop.run_in_executor(None, lambda: requests.get(API_BASE + f"/api/weatherapi/search?q={val}", timeout=2).json())
+                    
+                    results_container.clear()
+                    if results:
+                        results_container.classes(remove='hidden')
+                        with results_container:
+                            for res in results:
+                                name = res.get("name")
+                                region = res.get("region")
+                                country = res.get("country")
+                                full_name = f"{name}, {country}"
+                                
+                                with ui.item(on_click=lambda n=full_name: select_city(n)).classes('w-full hover:bg-white/10 cursor-pointer px-4 py-2 transition-colors'):
+                                    with ui.row().classes('items-center justify-between w-full'):
+                                        ui.label(name).classes('text-slate-200 font-medium')
+                                        ui.label(country).classes('text-xs text-slate-400')
+                    else:
+                        results_container.classes(add='hidden')
+                except Exception as ex:
+                    print(f"Autocomplete error: {ex}")
+                    results_container.classes(add='hidden')
+
+            search_input.on('input', update_suggestions)
+            
+            def handle_search():
+                city = search_input.value
+                if not city: return
+                
+                results_container.classes(add='hidden')
+                
+                # Call API to update city
+                try:
+                    r = requests.post(API_BASE + "/api/settings/city", json={"city": city}, timeout=5)
+                    if r.status_code == 200:
+                        ui.notify(f"Location updated to {city}", type='positive')
+                        search_input.value = "" # Clear input
+                        refresh_weather()
+                    else:
+                        ui.notify(f"Error: {r.json().get('message')}", type='negative')
+                except Exception as e:
+                    ui.notify(f"Failed to update location: {str(e)}", type='negative')
+
+            search_input.on('keydown.enter', handle_search)
 
     # --- Main Content (Dashboard) ---
     with ui.element('div').classes('w-full max-w-7xl mx-auto p-4 md:p-6 gap-6 flex flex-col main-content mt-16') as main_content:
@@ -798,6 +873,11 @@ def main_page():
         new_classes = ["text-base", "font-bold"]
         if iot_stat == "Connected":
             new_classes.append("text-green-400")
+            
+        # 6. Update City Name (if changed via API)
+        city_name = data.get("city")
+        if city_name and state.get('city_label'):
+             state['city_label'].set_text(city_name)
         elif iot_stat == "Disconnected":
             new_classes.append("text-red-400")
         else:

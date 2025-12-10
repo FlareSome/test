@@ -1,6 +1,7 @@
 # api/combined.py
 from fastapi import APIRouter
 from .latest_sensor import get_latest_sensor
+from . import weather_api
 from .weather_api import get_weatherapi_now, get_weatherapi_7day
 from .ml_forecast import get_ml_forecast
 
@@ -282,6 +283,7 @@ def combined_weather():
         "api_data": api_data,
         "daily": daily,
         "sensor_status": "Connected" if latest else "Disconnected",
+        "city": weather_api.CITY_NAME,
         "chart": {
             "labels": labels,
             "AI": ai_vals,

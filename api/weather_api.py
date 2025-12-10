@@ -132,3 +132,74 @@ def sync_weatherapi():
     except Exception as e:
         print("Sync error:", e)
         return {"status": "error", "message": str(e)}
+
+# New Settings Endpoint
+from pydantic import BaseModel
+
+class CityUpdate(BaseModel):
+    city: str
+
+@router.post("/settings/city")
+def update_city(update: CityUpdate):
+    """Update the city, clear cache, and persist to .env."""
+    global CITY_NAME
+    
+    new_city = update.city.strip()
+    if not new_city:
+        return {"status": "error", "message": "City name cannot be empty"}
+        
+    # 1. Update Global Variable
+    CITY_NAME = new_city
+    
+    # 2. Clear Cache
+    _cache_now["data"] = None
+    _cache_7day["data"] = None
+    
+    # 3. Persist to .env
+    try:
+        env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+        
+        # Read existing lines
+        lines = []
+        if os.path.exists(env_path):
+            with open(env_path, "r") as f:
+                lines = f.readlines()
+        
+        # Update or Append CITY_NAME
+        found = False
+        new_lines = []
+        for line in lines:
+            if line.startswith("CITY_NAME="):
+                new_lines.append(f"CITY_NAME=\"{new_city}\"\n")
+                found = True
+            else:
+                new_lines.append(line)
+        
+        if not found:
+            new_lines.append(f"\nCITY_NAME=\"{new_city}\"\n")
+            
+        with open(env_path, "w") as f:
+            f.writelines(new_lines)
+            
+        return {"status": "success", "message": f"City updated to {new_city}", "city": new_city}
+        
+    except Exception as e:
+        print(f"Error updating .env: {e}")
+        return {"status": "warning", "message": f"City updated in memory but failed to save to .env: {str(e)}", "city": new_city}
+
+@router.get("/weatherapi/search")
+def search_locations(q: str):
+    """Proxy search to WeatherAPI."""
+    if not API_KEY:
+        return []
+    
+    try:
+        url = f"http://api.weatherapi.com/v1/search.json?key={API_KEY}&q={q}"
+        r = requests.get(url, timeout=5)
+        if r.status_code == 200:
+            # Return top 3 results
+            return r.json()[:3]
+        return []
+    except Exception as e:
+        print(f"Search error: {e}")
+        return []

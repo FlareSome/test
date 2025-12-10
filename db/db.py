@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-import pandas as pd
+# import pandas as pd # Moved to lazy import
 from datetime import datetime, timedelta
 
 DB_PATH = Path(__file__).resolve().parent / "weather_data.db"
@@ -79,6 +79,7 @@ def insert_forecast_batch(source, created_at, forecast_list, summary=None):
     con.close()
 
 def get_latest_reading(limit=1):
+    import pandas as pd
     con = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query(
         f"SELECT * FROM readings ORDER BY timestamp DESC LIMIT {limit}",
@@ -90,6 +91,7 @@ def get_latest_reading(limit=1):
 def get_daily_trends(days=7):
     """Get daily aggregated data for trend charts."""
     try:
+        import pandas as pd
         con = sqlite3.connect(DB_PATH)
         # Get data from last N days, group by date
         query = f"""
@@ -114,6 +116,7 @@ def get_daily_trends(days=7):
 def get_hourly_trends(hours=24):
     """Get hourly data for sparkline charts."""
     try:
+        import pandas as pd
         con = sqlite3.connect(DB_PATH)
         query = f"""
         SELECT 
@@ -135,12 +138,14 @@ def get_hourly_trends(hours=24):
         return pd.DataFrame()
 
 def query_readings():
+    import pandas as pd
     con = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT * FROM readings ORDER BY timestamp ASC", con, parse_dates=["timestamp"])
     con.close()
     return df
 
 def get_forecasts():
+    import pandas as pd
     con = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT * FROM forecasts ORDER BY created_at DESC", con, parse_dates=["created_at"])
     con.close()

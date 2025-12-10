@@ -41,7 +41,7 @@ A comprehensive IoT-based weather prediction system that collects real-time sens
 ## 📋 Project Structure
 
 ```
-app2/
+Weather_Prediction/
 ├── main.py                     # FastAPI + NiceGUI application entry point
 ├── api/
 │   ├── combined.py             # Combined weather data endpoint
@@ -146,7 +146,7 @@ The script will:
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd app2
+   cd Weather_Prediction
    ```
 
 2. **Create and activate virtual environment:**
